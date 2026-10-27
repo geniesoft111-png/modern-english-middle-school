@@ -1,0 +1,15 @@
+# OS & IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Python & Tests
+__pycache__/
+*.py[cod]
+screenshot_*.png
+test-results/
+playwright-report/
+
+# Logs
+*.log
