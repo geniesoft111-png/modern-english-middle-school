@@ -19,7 +19,8 @@ Official web portal for **Modern English Middle School**, located near Central B
 - **Self-Contained Single-Page Application:** Built with React and Tailwind CSS, bundled with all school photography and branding embedded.
 - **Interactive Lightbox:** Full resolution viewer for campus pictures and the official admission form.
 - **Direct Actions:** One-tap calling (`tel:9955534352`), WhatsApp inquiry (`wa.me`), and email links.
-- **Admissions & Fee Portal:** Complete fee structure, class eligibility, and instant admission inquiry form with automated field clearing and confirmation.
+- **Admissions & Fee Portal:** Verified monthly fee structure (Nursery–UKG ₹400/mo, I–IV ₹450/mo, V–VIII ₹500/mo; Admission ₹400 one-time, Re-admission Nil), class eligibility, and instant admission inquiry form with automated field clearing and confirmation.
+- **Prescribed Book List Explorer (2026–2027):** Interactive class-by-class textbook catalog (Class I through VIII) listing subjects, prescribed book titles, publication houses, and official verification advisories.
 
 ---
 

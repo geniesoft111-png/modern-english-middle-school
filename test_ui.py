@@ -35,7 +35,69 @@ def test_modern_english_middle_school():
         assert "Poppins" in body_font, f"Poppins not applied to body: {body_font}"
         results.append(("Body Font", f"PASS - {body_font}"))
         
-        # 3. Admissions Tab: Lightbox & Download
+        # 3. Home Fee & Book List Quick Link
+        fee_card = page.locator('button:has-text("Fee & Book List")')
+        assert fee_card.count() >= 1, "Home fee & book list quick card missing"
+        assert "Monthly ₹400–₹500" in fee_card.text_content(), "Outdated fee label on home card"
+        results.append(("Home Quick Links", "PASS - Fee & Book List card present"))
+
+        # 4. Academics: Monthly Fee Schedule
+        page.locator('header button:has-text("Academics")').first.click()
+        page.wait_for_timeout(400)
+        
+        sched_heading = page.locator('h2:has-text("Monthly Fee Schedule 2026-27")')
+        assert sched_heading.count() >= 1, "Monthly Fee Schedule heading missing"
+        
+        body_text = page.locator('main').text_content()
+        assert "₹400 / mo" in body_text, "Nursery ₹400 / mo fee missing"
+        assert "₹450 / mo" in body_text, "Classes I-IV ₹450 / mo fee missing"
+        assert "₹500 / mo" in body_text, "Classes V-VIII ₹500 / mo fee missing"
+        assert "₹4,005" not in body_text and "₹4005" not in body_text, "Old ₹4,005 fee misnomer found in Academics"
+        assert "₹4,505" not in body_text and "₹4505" not in body_text, "Old ₹4,505 fee misnomer found in Academics"
+        results.append(("Monthly Fee Schedule", "PASS - Verified ₹400, ₹450, ₹500 monthly rates"))
+        
+        # 5. Academics: Prescribed Book List & Interactive Class Switching
+        book_heading = page.locator('h2:has-text("Prescribed School Book List")')
+        assert book_heading.count() >= 1, "Prescribed School Book List section missing"
+        
+        # Default Class I
+        assert page.locator('text=Mathematics Introduction-2').count() >= 1, "Class I Math book missing"
+        assert page.locator('text=Subham English Reader-1').count() >= 1, "Class I English book missing"
+        assert page.locator('text=Veena Prakashan').count() >= 1, "Veena Prakashan publisher missing"
+        assert page.locator('text=No Sanskrit entry is visible in the supplied Class I photograph').count() >= 1, "Class I Sanskrit note missing"
+        results.append(("Book List Class I", "PASS - 8 subjects & publishers rendered"))
+        
+        # Switch to Class III
+        page.locator('button:has-text("Class III")').first.click()
+        page.wait_for_timeout(300)
+        assert page.locator('text=Mathematics Introduction-4*').count() >= 1, "Class III Math book with asterisk missing"
+        assert page.locator('text=Verify edition before purchasing').count() >= 1, "Class III edition verification note missing"
+        results.append(("Book List Class III", "PASS - Asterisk and edition advisory active"))
+        
+        # Switch to Class VII (NCERT)
+        page.locator('button:has-text("Class VII")').first.click()
+        page.wait_for_timeout(300)
+        assert page.locator('text=Curiosity').count() >= 1, "Class VII Science (Curiosity) missing"
+        assert page.locator('text=Malhar').count() >= 1, "Class VII Hindi (Malhar) missing"
+        assert page.locator('text=The Study of Society: India and Beyond').count() >= 1, "Class VII Social Science missing"
+        results.append(("Book List Class VII", "PASS - NCERT curriculum & titles verified"))
+        
+        # Switch to Class VIII
+        page.locator('button:has-text("Class VIII")').first.click()
+        page.wait_for_timeout(300)
+        assert page.locator('text=Ruchira').count() >= 1, "Class VIII Sanskrit (Ruchira) missing"
+        assert page.locator('text=Vasant, Mahabharat').count() >= 1, "Class VIII Hindi (Vasant, Mahabharat) missing"
+        results.append(("Book List Class VIII", "PASS - Middle school Class VIII books verified"))
+
+        # 6. Notices Tab: Updated Notifications
+        page.locator('header button:has-text("Notices")').first.click()
+        page.wait_for_timeout(400)
+        notices_text = page.locator('main').text_content()
+        assert "Monthly Fee Schedule 2026–27 Displayed" in notices_text, "Monthly fee notice missing"
+        assert "Prescribed Book List 2026–27 Published" in notices_text, "Prescribed book list notice missing"
+        results.append(("Notices & Circulars", "PASS - Fee and Book List circulars active"))
+
+        # 7. Admissions Tab: Lightbox & Download
         page.locator('header button:has-text("Admissions")').first.click()
         page.wait_for_timeout(300)
         
@@ -58,7 +120,7 @@ def test_modern_english_middle_school():
         assert dl_link.get_attribute("download") == "MEMS-Admission-Form.jpg"
         results.append(("Download Form Link", "PASS - Configured for download"))
         
-        # 4. Contact Us Form
+        # 8. Contact Us Form
         page.locator('header button:has-text("Contact Us")').first.click()
         page.wait_for_timeout(300)
         
@@ -74,7 +136,7 @@ def test_modern_english_middle_school():
         assert inputs.nth(0).input_value() == "", "Input fields were not cleared"
         results.append(("Contact Form Inquiry", "PASS - Dispatched and reset successfully"))
         
-        # 5. Mobile Responsiveness
+        # 9. Mobile Responsiveness
         page.set_viewport_size({"width": 375, "height": 812})
         page.wait_for_timeout(300)
         menu_btn = page.locator('button[aria-label="Menu"]')
@@ -85,7 +147,7 @@ def test_modern_english_middle_school():
         assert phone_link.count() >= 1, "Mobile call link missing"
         results.append(("Mobile Call Link", "PASS - Direct tel: link in menu"))
         
-        # 6. Zero Console Errors
+        # 10. Zero Console Errors
         assert len(errors) == 0, f"Errors encountered: {errors}"
         results.append(("Console Errors", "PASS - 0 errors"))
         
