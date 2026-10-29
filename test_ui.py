@@ -35,30 +35,38 @@ def test_modern_english_middle_school():
         assert "Poppins" in body_font, f"Poppins not applied to body: {body_font}"
         results.append(("Body Font", f"PASS - {body_font}"))
         
-        # 3. Home Fee & Book List Quick Link
-        fee_card = page.locator('button:has-text("Fee & Book List")')
-        assert fee_card.count() >= 1, "Home fee & book list quick card missing"
-        assert "Monthly ₹400–₹500" in fee_card.text_content(), "Outdated fee label on home card"
-        results.append(("Home Quick Links", "PASS - Fee & Book List card present"))
+        # 3. Home Quick Link Cards (Fee Structure & Book List)
+        home_fee_card = page.locator('button:has-text("Fee Structure")').first
+        assert home_fee_card.count() >= 1, "Home Fee Structure quick card missing"
+        home_book_card = page.locator('button:has-text("Book List")').first
+        assert home_book_card.count() >= 1, "Home Book List quick card missing"
+        results.append(("Home Quick Links", "PASS - Dedicated Fee Structure & Book List cards present"))
 
-        # 4. Academics: Monthly Fee Schedule
-        page.locator('header button:has-text("Academics")').first.click()
+        # 4. Dedicated Nav Link & Page: Fee Structure
+        fee_nav = page.locator('header nav button:has-text("Fee Structure")').first
+        assert fee_nav.count() == 1, "Header nav link for Fee Structure missing"
+        fee_nav.click()
         page.wait_for_timeout(400)
         
-        sched_heading = page.locator('h2:has-text("Monthly Fee Schedule 2026-27")')
-        assert sched_heading.count() >= 1, "Monthly Fee Schedule heading missing"
+        h1_text = page.locator('main h1').inner_text()
+        assert "Fee Structure" in h1_text, f"Fee Structure heading not found, got {h1_text}"
         
         body_text = page.locator('main').text_content()
         assert "₹400 / mo" in body_text, "Nursery ₹400 / mo fee missing"
         assert "₹450 / mo" in body_text, "Classes I-IV ₹450 / mo fee missing"
         assert "₹500 / mo" in body_text, "Classes V-VIII ₹500 / mo fee missing"
-        assert "₹4,005" not in body_text and "₹4005" not in body_text, "Old ₹4,005 fee misnomer found in Academics"
-        assert "₹4,505" not in body_text and "₹4505" not in body_text, "Old ₹4,505 fee misnomer found in Academics"
-        results.append(("Monthly Fee Schedule", "PASS - Verified ₹400, ₹450, ₹500 monthly rates"))
+        assert "₹4,005" not in body_text and "₹4005" not in body_text, "Old ₹4,005 misnomer found in Fees page"
+        assert "₹4,505" not in body_text and "₹4505" not in body_text, "Old ₹4,505 misnomer found in Fees page"
+        results.append(("Fee Structure Page", "PASS - Dedicated page with ₹400, ₹450, ₹500 monthly fees"))
+
+        # 5. Dedicated Nav Link & Page: Book List
+        book_nav = page.locator('header nav button:has-text("Book List")').first
+        assert book_nav.count() == 1, "Header nav link for Book List missing"
+        book_nav.click()
+        page.wait_for_timeout(400)
         
-        # 5. Academics: Prescribed Book List & Interactive Class Switching
-        book_heading = page.locator('h2:has-text("Prescribed School Book List")')
-        assert book_heading.count() >= 1, "Prescribed School Book List section missing"
+        book_h1 = page.locator('main h1').inner_text()
+        assert "Prescribed School Book List" in book_h1, f"Book List heading not found, got {book_h1}"
         
         # Default Class I
         assert page.locator('text=Mathematics Introduction-2').count() >= 1, "Class I Math book missing"
@@ -89,7 +97,14 @@ def test_modern_english_middle_school():
         assert page.locator('text=Vasant, Mahabharat').count() >= 1, "Class VIII Hindi (Vasant, Mahabharat) missing"
         results.append(("Book List Class VIII", "PASS - Middle school Class VIII books verified"))
 
-        # 6. Notices Tab: Updated Notifications
+        # 6. Academics Page: Jump links to Fees & Books
+        page.locator('header nav button:has-text("Academics")').first.click()
+        page.wait_for_timeout(400)
+        assert page.locator('button:has-text("Monthly Fee Structure →")').count() >= 1, "Fee link card in Academics missing"
+        assert page.locator('button:has-text("Prescribed Book List →")').count() >= 1, "Book List link card in Academics missing"
+        results.append(("Academics Hub", "PASS - Overview with jump cards to Fees & Books"))
+
+        # 7. Notices Tab: Updated Notifications
         page.locator('header button:has-text("Notices")').first.click()
         page.wait_for_timeout(400)
         notices_text = page.locator('main').text_content()
@@ -97,7 +112,7 @@ def test_modern_english_middle_school():
         assert "Prescribed Book List 2026–27 Published" in notices_text, "Prescribed book list notice missing"
         results.append(("Notices & Circulars", "PASS - Fee and Book List circulars active"))
 
-        # 7. Admissions Tab: Lightbox & Download
+        # 8. Admissions Tab: Lightbox & Download
         page.locator('header button:has-text("Admissions")').first.click()
         page.wait_for_timeout(300)
         
@@ -120,7 +135,7 @@ def test_modern_english_middle_school():
         assert dl_link.get_attribute("download") == "MEMS-Admission-Form.jpg"
         results.append(("Download Form Link", "PASS - Configured for download"))
         
-        # 8. Contact Us Form
+        # 9. Contact Us Form
         page.locator('header button:has-text("Contact Us")').first.click()
         page.wait_for_timeout(300)
         
@@ -136,18 +151,22 @@ def test_modern_english_middle_school():
         assert inputs.nth(0).input_value() == "", "Input fields were not cleared"
         results.append(("Contact Form Inquiry", "PASS - Dispatched and reset successfully"))
         
-        # 9. Mobile Responsiveness
+        # 10. Mobile Responsiveness & Drawer Navigation
         page.set_viewport_size({"width": 375, "height": 812})
         page.wait_for_timeout(300)
         menu_btn = page.locator('button[aria-label="Menu"]')
         menu_btn.click()
         page.wait_for_timeout(300)
         
+        # Check Fee Structure and Book List tiles in mobile menu
+        assert page.locator('div:has-text("Fee Structure")').count() >= 1, "Fee Structure missing in mobile drawer"
+        assert page.locator('div:has-text("Book List")').count() >= 1, "Book List missing in mobile drawer"
+        
         phone_link = page.locator('a[href="tel:9955534352"]')
         assert phone_link.count() >= 1, "Mobile call link missing"
-        results.append(("Mobile Call Link", "PASS - Direct tel: link in menu"))
+        results.append(("Mobile Drawer & Link", "PASS - Dedicated tiles and direct tel: link"))
         
-        # 10. Zero Console Errors
+        # 11. Zero Console Errors
         assert len(errors) == 0, f"Errors encountered: {errors}"
         results.append(("Console Errors", "PASS - 0 errors"))
         
